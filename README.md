@@ -1,2 +1,1 @@
-Base repository for FE projects
-
+TicTacToe game - FreeCodeCamp project.

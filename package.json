@@ -1,7 +1,7 @@
 {
-  "name": "fe_base",
+  "name": "TicTacToe",
   "version": "0.0.0",
-  "description": "Base repository for FE projects",
+  "description": "Tic Tac Toe game - FreeCodeCamp project",
   "main": "index.js",
   "scripts": {
     "webpack": "webpack",
