@@ -1,3 +1,43 @@
-h1 {
-    background-color: red
+body, html {
+  height: 100%;
+  margin: 0;
+}
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+table {
+  border-collapse: collapse;
+  border: 1px solid black;
+}
+td {
+  border: 1px solid ;
+  height: 100px;
+  width: 100px;
+}
+#debug {
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  margin-left: 10px;
+  width: 45px;
+  height: 18px;
+  border: 3px solid rgba(131, 45, 43, 0.7);
+  transition: all 1s;
+  /*, max-width 2s, height 2s;*/
+}
+#debug.pop {
+  width: 400px;
+  height: auto;
+}
+#debug > p {
+  color: rgba(0, 0, 0, 0.7);
+  margin: 0;
+}
+#debug > p:nth-child(odd) {
+  background-color: rgba(135, 78, 77, 0.7);
+}
+#debug > p:nth-child(even) {
+  background-color: rgba(193, 145, 144, 0.7);
 }
