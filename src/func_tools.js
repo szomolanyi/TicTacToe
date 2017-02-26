@@ -229,35 +229,30 @@ const ft = {
     console.log('findTurn level='+level+' ('+player+') best_move:'+optimal_move+' rank:'+rank);
     return [optimal_move, rank];
   },
+  player_pos: function(pos, move_map, player) {
+    return pos && move_map[pos.index] === player;
+  },
+  free_pos: function(pos, move_map) {
+    return pos && !move_map[pos.index];
+  },
   analyseMove: function(move, move_map, player) {
     let p=ft.Position(move);
     return all_dirs.reduce(function(res, dir) {
-      //analyse all directions dir
+      //analyse all directions
       let p1 = p.mv(dir);
-      if (p1 && move_map[p1.index] === player) {
-        //first step in direction is possible and is player's
-        let p2 = p1.mv(dir);
-        if (p2) { //second step is possible
-          if (move_map[p2.index] === player) {
-            //trinity
-            res.trinities+=1;
-          }
-        }
-        //check opposite direction in case we are in the middle
-        let p_opos = p.mv(ft.opos_dir(dir));
-        if (p_opos && move_map[p_opos.index] === player) {
-          //trinity
-          res.trinities+=1;
-        }
-        if (p_opos && !move_map[p_opos.index]) {
-          //pairs
-          res.pairs+=1;
-        }
-        if (p2 && !move_map[p2.index]) {
-          //pairs
-          res.pairs+=1;
-        }
-      }
+      let p2 = null;
+      if (p1) p2 = p1.mv(dir);
+      let p_opos = p.mv(ft.opos_dir(dir));
+      if (ft.player_pos(p1, move_map, player) && ft.player_pos(p2, move_map, player))
+        res.trinities++;
+      if (ft.player_pos(p1, move_map, player) && ft.player_pos(p_opos, move_map, player))
+        res.trinities++;
+      else if (ft.player_pos(p_opos, move_map, player) && ft.free_pos(p1, move_map))
+        res.pairs++;
+      else if (ft.player_pos(p1, move_map, player) && ft.free_pos(p2, move_map))
+        res.pairs++;
+      else if (ft.player_pos(p2, move_map, player) && ft.free_pos(p1, move_map))
+        res.pairs++;
       return res;
     }, {
       pairs: 0,
