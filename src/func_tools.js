@@ -114,6 +114,156 @@ const ft = {
       return r;
     }, []);
   },
+  is_middle_side: function(pos) {
+    return (pos===1 || pos===3 || pos === 5 || pos === 7);
+  },
+  is_corner: function(pos) {
+    return (pos===0 || pos===2 || pos===6 || pos===8);
+  },
+  opposite_corner: function(pos) {
+    if (pos === 0) return 8;
+    if (pos === 2) return 6;
+    if (pos === 6) return 2;
+    if (pos === 8) return 0;
+  },
+  findTurn: function(player, move_map, level) {
+    if (!level) level=0;
+    console.log('findTurn['+level+'] start onTurn='+player );
+    /* turn_rank :
+      0 : random
+      1 : Empty side: The player plays in a middle square on any of the 4 sides.
+      2 : Empty corner: The player plays in a corner square.
+      3 : Opposite corner: If the opponent is in the corner, the player plays the opposite corner.
+      4 : Center: A player marks the center. (If it is the first move of the game, playing on a corner gives "O" more opportunities to make a mistake and may therefore be the better choice; however, it makes no difference between perfect players.)
+      5 : Blocking, Option 2: If there is a configuration where the opponent can fork, the player should block that fork.
+      6 : Blocking, Option 1: The player should create two in a row to force the opponent into defending, as long as it doesn't result in them creating a fork. For example, if "X" has a corner, "O" has the center, and "X" has the opposite corner as well, "O" must not play a corner in order to win. (Playing a corner in this scenario creates a fork for "X" to win.)
+      7 : Blocking an opponent's fork
+      8 : Fork: Create an opportunity where the player has two threats to win (two non-blocked lines of 2).
+      9 : Block: If the opponent has two in a row, the player must play the third themselves to block the opponent.
+      10 : Win: If the player has two in a row, they can place a third to get three in a row.
+    */
+    let rank = -1;
+    let optimal_move = -1;
+    for (let i=0; i<9; i++) {
+      if (!move_map[i]) {
+        let my_moves = ft.analyseMove(i, move_map, player );
+        if (my_moves.trinities > 0) {
+          //10 : Win: If the player has two in a row, they can place a third to get three in a row.
+          optimal_move = i;
+          rank = 10;
+          break;
+        }
+        let opponent_moves = ft.analyseMove(i, move_map, ft.opponent(player));
+        if (opponent_moves.trinities > 0 && rank < 9) {
+          //9 : Block: If the opponent has two in a row, the player must play the third themselves to block the opponent.
+          optimal_move = i;
+          rank = 9;
+        }
+        if (my_moves.pairs > 1 && rank < 8) {
+          //8 : Fork: Create an opportunity where the player has two threats to win (two non-blocked lines of 2).
+          optimal_move = i;
+          rank = 8;
+        }
+        if (opponent_moves.pairs > 1 && rank < 7) {
+          //7 : Blocking an opponent's fork
+          optimal_move = i;
+          rank = 7;
+        }
+        if (my_moves.pairs > 0 && rank < 6) {
+          //6 : Blocking, Option 1: The player should create two in a row to force the opponent into defending,
+          //as long as it doesn't result in them creating a fork. For example, if "X" has a corner,
+          //"O" has the center, and "X" has the opposite corner as well,
+          //"O" must not play a corner in order to win.
+          //(Playing a corner in this scenario creates a fork for "X" to win.)
+          let tmp_res=[];
+          if (level === 0) {
+            let tmp_map = move_map.slice();
+            tmp_map[i] = player; //simulate turn
+            console.log('  checking rank 6 for '+i);
+            tmp_res = ft.findTurn(ft.opponent(player), tmp_map, 1);
+          }
+          else tmp_res=[0, 0]; /* dummy */
+          if (tmp_res[1] != 8) {
+            optimal_move = i;
+            rank = 6;
+          }
+        }
+        if (opponent_moves.pairs > 1 && rank < 5) {
+          //5 : Blocking, Option 2: If there is a configuration where the opponent can fork,
+          //the player should block that fork.
+          optimal_move = i;
+          rank = 5;
+        }
+        if (i===4 && rank < 4) {
+          //Center: A player marks the center. (If it is the first move of the game,
+          //playing on a corner gives "O" more opportunities to make a mistake
+          //and may therefore be the better choice;
+          //however, it makes no difference between perfect players.)
+          optimal_move = i;
+          rank = 4;
+        }
+        if (ft.is_corner(i) &&
+          move_map[ft.opposite_corner(i)] === ft.opponent(player) &&
+          rank < 3) {
+          //3 : Opposite corner: If the opponent is in the corner,
+          //the player plays the opposite corner.
+          optimal_move = i;
+          rank = 3;
+        }
+        if (ft.is_corner(i) && rank < 2) {
+          //Empty corner: The player plays in a corner square.
+          optimal_move = i;
+          rank = 2;
+        }
+        if (ft.is_middle_side && rank < 1) {
+          //1 : Empty side: The player plays in a middle square on any of the 4 sides.
+          optimal_move = i;
+          rank = 1;
+        }
+        if (rank < 0) {
+          optimal_move = i;
+          rank = 0;
+        }
+      }
+    }
+    console.log('findTurn level='+level+' ('+player+') best_move:'+optimal_move+' rank:'+rank);
+    return [optimal_move, rank];
+  },
+  analyseMove: function(move, move_map, player) {
+    let p=ft.Position(move);
+    return all_dirs.reduce(function(res, dir) {
+      //analyse all directions dir
+      let p1 = p.mv(dir);
+      if (p1 && move_map[p1.index] === player) {
+        //first step in direction is possible and is player's
+        let p2 = p1.mv(dir);
+        if (p2) { //second step is possible
+          if (move_map[p2.index] === player) {
+            //trinity
+            res.trinities+=1;
+          }
+        }
+        //check opposite direction in case we are in the middle
+        let p_opos = p.mv(ft.opos_dir(dir));
+        if (p_opos && move_map[p_opos.index] === player) {
+          //trinity
+          res.trinities+=1;
+        }
+        if (p_opos && !move_map[p_opos.index]) {
+          //pairs
+          res.pairs+=1;
+        }
+        if (p2 && !move_map[p2.index]) {
+          //pairs
+          res.pairs+=1;
+        }
+      }
+      return res;
+    }, {
+      pairs: 0,
+      trinities: 0
+    });
+  }
 };
 
 
