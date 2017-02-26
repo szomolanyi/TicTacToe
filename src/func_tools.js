@@ -147,14 +147,14 @@ const ft = {
     for (let i=0; i<9; i++) {
       if (!move_map[i]) {
         let my_moves = ft.analyseMove(i, move_map, player );
-        if (my_moves.trinities > 0) {
+        if (my_moves.trinities > 0 && level === 0) {
           //10 : Win: If the player has two in a row, they can place a third to get three in a row.
           optimal_move = i;
           rank = 10;
           break;
         }
         let opponent_moves = ft.analyseMove(i, move_map, ft.opponent(player));
-        if (opponent_moves.trinities > 0 && rank < 9) {
+        if (opponent_moves.trinities > 0 && rank < 9 && level === 0) {
           //9 : Block: If the opponent has two in a row, the player must play the third themselves to block the opponent.
           optimal_move = i;
           rank = 9;
@@ -164,12 +164,12 @@ const ft = {
           optimal_move = i;
           rank = 8;
         }
-        if (opponent_moves.pairs > 1 && rank < 7) {
+        if (opponent_moves.pairs > 1 && rank < 6) {
           //7 : Blocking an opponent's fork
           optimal_move = i;
-          rank = 7;
+          rank = 6;
         }
-        if (my_moves.pairs > 0 && rank < 6) {
+        if (my_moves.pairs > 0 && rank < 7) {
           //6 : Blocking, Option 1: The player should create two in a row to force the opponent into defending,
           //as long as it doesn't result in them creating a fork. For example, if "X" has a corner,
           //"O" has the center, and "X" has the opposite corner as well,
@@ -183,9 +183,9 @@ const ft = {
             tmp_res = ft.findTurn(ft.opponent(player), tmp_map, 1);
           }
           else tmp_res=[0, 0]; /* dummy */
-          if (tmp_res[1] != 8) {
+          if (tmp_res[1] === 8) {
             optimal_move = i;
-            rank = 6;
+            rank = 7;
           }
         }
         if (opponent_moves.pairs > 1 && rank < 5) {

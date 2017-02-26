@@ -27,7 +27,7 @@ Empty side: The player plays in a middle square on any of the 4 sides.
 */
 let state={
   debugOn: false,
-  onTurn: 'o', /* who is on turn : none, o or x */
+  onTurn: 'x', /* who is on turn : none, o or x */
   move_map: [],
   pairs: {
     'x' : [],
