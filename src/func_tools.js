@@ -183,7 +183,7 @@ const ft = {
             tmp_res = ft.findTurn(ft.opponent(player), tmp_map, 1);
           }
           else tmp_res=[0, 0]; /* dummy */
-          if (tmp_res[1] === 8) {
+          if (tmp_res[1] !== 8) {
             optimal_move = i;
             rank = 7;
           }
