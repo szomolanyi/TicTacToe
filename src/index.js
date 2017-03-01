@@ -23,14 +23,25 @@ let state={
   },
   x_positions: [],
   o_positions: [],
+  gameType : 1,
+  gameOver : false,
+  turnsDone : 0,
   start2player: function() {
-
+    this.reset(2, 'x');
   },
   start1playerx: function() {
-
+    this.reset(1, 'x');
   },
   start1playero: function() {
-
+    this.reset(1, 'o');
+  },
+  reset: function(gametype, on_turn) {
+    this.gameType = gametype;
+    this.onTurn = on_turn;
+    this.move_map = [];
+    for (let i=0; i<9; i++) $('#'+i).html('');
+    this.gameOver = false;
+    this.turnsDone = 0;
   },
   createMove: function(kind) {
     if (kind === "x")
@@ -39,11 +50,22 @@ let state={
       return $('<i>').addClass("fa fa-circle-o");
   },
   handleTurn: function(id) {
+    if (this.gameOver) return;
     let x=(id-1)%3;
     let y=Math.trunc((id-1)/3);
 
     if (this.move_map[id]) return;
+    let moves = ft.analyseMove(id, this.move_map, this.onTurn);
+    if (moves.trinities > 0) {
+      console.log('Game over: '+this.onTurn + ' wins');
+      this.gameOver = true;
+    }
     this.move_map[id]=this.onTurn;
+    this.turnsDone+=1;
+    if (!this.gameOver && this.turnsDone === 9) {
+      console.log('Game over : tie');
+      this.gameOver = true;
+    }
     $('#'+id).append(this.createMove(this.onTurn));
     if (this.onTurn === 'o') {
       this.o_positions.push(id);
