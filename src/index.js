@@ -13,18 +13,6 @@ function dbg(msg) {
 }
 
 
-/*
-Win: If the player has two in a row, they can place a third to get three in a row.
-Block: If the opponent has two in a row, the player must play the third themselves to block the opponent.
-Fork: Create an opportunity where the player has two threats to win (two non-blocked lines of 2).
-Blocking an opponent's fork:
-Option 1: The player should create two in a row to force the opponent into defending, as long as it doesn't result in them creating a fork. For example, if "X" has a corner, "O" has the center, and "X" has the opposite corner as well, "O" must not play a corner in order to win. (Playing a corner in this scenario creates a fork for "X" to win.)
-Option 2: If there is a configuration where the opponent can fork, the player should block that fork.
-Center: A player marks the center. (If it is the first move of the game, playing on a corner gives "O" more opportunities to make a mistake and may therefore be the better choice; however, it makes no difference between perfect players.)
-Opposite corner: If the opponent is in the corner, the player plays the opposite corner.
-Empty corner: The player plays in a corner square.
-Empty side: The player plays in a middle square on any of the 4 sides.
-*/
 let state={
   debugOn: false,
   onTurn: 'x', /* who is on turn : none, o or x */
@@ -35,6 +23,15 @@ let state={
   },
   x_positions: [],
   o_positions: [],
+  start2player: function() {
+
+  },
+  start1playerx: function() {
+
+  },
+  start1playero: function() {
+
+  },
   createMove: function(kind) {
     if (kind === "x")
       return $('<i>').addClass("fa fa-close");
@@ -85,4 +82,7 @@ $(document).ready(function () {
     state.handleTurn(this.id);
     ft.findTurn(state.onTurn, state.move_map);
   });
+  $('span#2player').click(() => state.start2player());
+  $('span#1playerx').click(() => state.start1playerx());
+  $('span#1playero').click(() => state.start1playero());
 });

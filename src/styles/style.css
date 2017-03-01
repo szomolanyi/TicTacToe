@@ -29,6 +29,13 @@ nav {
 }
 nav > span {
   font-size: 1em;
+  border-radius: 4px;
+  padding: 2px 10px;
+  transition: all 0.5s;
+  cursor: pointer;
+}
+nav > span:hover {
+  background-color: #A1887F;
 }
 hr {
   border-color: white;
@@ -46,9 +53,6 @@ a {
   text-decoration: none;
   color: white;
 }
-a:hover {
-  text-decoration: underline;
-}
 table {
   border: 1px solid black;
   border-spacing: 0px;
@@ -56,8 +60,8 @@ table {
 }
 td {
   border: 1px solid black;
-  height: 100px;
-  width: 100px;
+  height: 80px;
+  width: 80px;
   text-align: center;
   font-size: 3em;
   font-weight: 100;
