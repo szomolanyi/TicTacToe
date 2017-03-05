@@ -157,6 +157,7 @@
 	    for (var i = 0; i < 9; i++) {
 	      $('#' + i).html('');
 	    }this.gameOver = false;
+	    this.lockUI = false;
 	    this.turnsDone = 0;
 	    this.switchL1();
 	  },

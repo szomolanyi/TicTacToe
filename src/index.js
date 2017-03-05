@@ -113,6 +113,7 @@ let state={
     this.move_map = [];
     for (let i=0; i<9; i++) $('#'+i).html('');
     this.gameOver = false;
+    this.lockUI = false;
     this.turnsDone = 0;
     this.switchL1();
   },
