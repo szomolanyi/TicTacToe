@@ -22,6 +22,7 @@ header {
 header > span {
   font-size: 2em;
   padding-left: 10px;
+  padding-top: 10px;
 }
 nav {
   padding-left: 10px;
