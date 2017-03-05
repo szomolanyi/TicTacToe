@@ -231,7 +231,7 @@
 	    state.lockUI = true;
 	    state.handleTurn(this.id);
 	    var bestTurn = ft.findTurn(state.onTurn, state.move_map);
-	    if (state.gameType === 1) {
+	    if (state.gameType === 1 && !state.gameOver) {
 	      //one player gameType - computers turn
 	      setTimeout(function () {
 	        state.handleTurn(bestTurn[0]);
