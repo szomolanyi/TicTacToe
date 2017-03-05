@@ -72,6 +72,7 @@
 	  o_positions: [],
 	  gameType: 1,
 	  gameOver: true,
+	  lockUI: false,
 	  turnsDone: 0,
 	  computerOnTurn: false,
 	  labels: {
@@ -181,7 +182,6 @@
 	    }
 	  },
 	  handleTurn: function handleTurn(id) {
-	    if (this.gameOver) return;
 	    var x = (id - 1) % 3;
 	    var y = Math.trunc((id - 1) / 3);
 	
@@ -226,6 +226,8 @@
 	  $('#debug').click(turn_debug);
 	  var bestTurn = ft.findTurn(state.onTurn, state.move_map);
 	  $('td').click(function () {
+	    if (state.gameOver || state.lockUI) return;
+	    state.lockUI = true;
 	    state.handleTurn(this.id);
 	    var bestTurn = ft.findTurn(state.onTurn, state.move_map);
 	    if (state.gameType === 1) {
@@ -233,7 +235,10 @@
 	      setTimeout(function () {
 	        state.handleTurn(bestTurn[0]);
 	        ft.findTurn(state.onTurn, state.move_map);
+	        state.lockUI = false;
 	      }, 1000);
+	    } else {
+	      state.lockUI = false;
 	    }
 	  });
 	  $('span#2player').click(function () {
