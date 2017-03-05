@@ -24,16 +24,87 @@ let state={
   x_positions: [],
   o_positions: [],
   gameType : 1,
-  gameOver : false,
+  gameOver : true,
   turnsDone : 0,
+  computerOnTurn : false,
+  labels: {
+    'x': {
+      'turn' : undefined,
+      'win' : undefined
+    },
+    'o': {
+      'turn' : undefined,
+      'win' : undefined
+    }
+  },
   start2player: function() {
     this.reset(2, 'x');
+    this.computerOnTurn = false;
+    this.setLabels("Player&nbsp;<i class='fa fa-close'></i>&nbsp;turn", "Player&nbsp;<i class='fa fa-circle-o'></i>&nbsp;turn");
   },
   start1playerx: function() {
     this.reset(1, 'x');
+    this.computerOnTurn = false;
+    this.setLabels("Player x turn", "Player o turn");
   },
   start1playero: function() {
-    this.reset(1, 'o');
+    this.reset(1, 'x');
+    this.computerOnTurn = true;
+    this.setLabels("Player x turn", "Player o turn");
+    let bestTurn = ft.findTurn(state.onTurn, state.move_map);
+    //one player gameType - computers turn
+    setTimeout(function() {
+      state.handleTurn(bestTurn[0]);
+      ft.findTurn(state.onTurn, state.move_map);
+    }, 1000);
+  },
+  /*
+  Player x turn !
+  Player o turn !
+  Computer turn !
+  Your turn !
+
+  Player x wins !
+  Player o wins !
+  You lost !
+  You win !
+  */
+  setLabels: function(l1, l2) {
+    let x="&nbsp;<i class='fa fa-close'></i>&nbsp;";
+    let o="&nbsp;<i class='fa fa-circle-o'></i>&nbsp;";
+    let who='';
+    if (this.computerOnTurn) who = 'computer';
+    else who = 'human';
+    if (this.gameType === 2) {
+      this.labels.x.turn = 'Player'+x+'turn !';
+      this.labels.o.turn = 'Player'+o+'turn !';
+      this.labels.x.win = 'Player'+x+'wins !';
+      this.labels.o.win = 'Player'+o+'wins !';
+    }
+    else {
+      if (this.computerOnTurn) {
+        this.labels.x.turn = 'Computer turn !';
+        this.labels.o.turn = 'Your turn !';
+        this.labels.x.win = 'Computer wins !';
+        this.labels.o.win = 'Player wins !';
+      }
+      else {
+        this.labels.o.turn = 'Computer turn !';
+        this.labels.x.turn = 'Your turn !';
+        this.labels.o.win = 'Computer wins !';
+        this.labels.x.win = 'Player wins !';
+      }
+    }
+    $('div#label1').html(this.labels.x.turn);
+    $('div#label2').html(this.labels.o.turn);
+  },
+  switchL1: function() {
+    $('div#label1').css('top', '0px');
+    $('div#label2').css('top', '250px');
+  },
+  switchL2: function() {
+    $('div#label1').css('top', '-250px');
+    $('div#label2').css('top', '0px');
   },
   reset: function(gametype, on_turn) {
     this.gameType = gametype;
@@ -42,12 +113,33 @@ let state={
     for (let i=0; i<9; i++) $('#'+i).html('');
     this.gameOver = false;
     this.turnsDone = 0;
+    this.switchL1();
   },
   createMove: function(kind) {
     if (kind === "x")
       return $('<i>').addClass("fa fa-close");
     else
       return $('<i>').addClass("fa fa-circle-o");
+  },
+  handleWin: function() {
+    console.log('Game over: '+this.onTurn + ' wins');
+    this.gameOver = true;
+    if (this.onTurn === 'x') {
+      $('div#label2').html(this.labels.x.win);
+    }
+    else {
+      $('div#label1').html(this.labels.o.win);
+    }
+  },
+  handleTie: function() {
+    console.log('Game over : tie');
+    this.gameOver = true;
+    if (this.onTurn === 'x') {
+      $('div#label2').html('Game tied');
+    }
+    else {
+      $('div#label1').html('Game tied');
+    }
   },
   handleTurn: function(id) {
     if (this.gameOver) return;
@@ -57,21 +149,21 @@ let state={
     if (this.move_map[id]) return;
     let moves = ft.analyseMove(id, this.move_map, this.onTurn);
     if (moves.trinities > 0) {
-      console.log('Game over: '+this.onTurn + ' wins');
-      this.gameOver = true;
+      this.handleWin();
     }
     this.move_map[id]=this.onTurn;
     this.turnsDone+=1;
     if (!this.gameOver && this.turnsDone === 9) {
-      console.log('Game over : tie');
-      this.gameOver = true;
+      this.handleTie();
     }
     $('#'+id).append(this.createMove(this.onTurn));
     if (this.onTurn === 'o') {
+      this.switchL1();
       this.o_positions.push(id);
       this.onTurn='x';
     }
     else {
+      this.switchL2();
       this.x_positions.push(id);
       this.onTurn='o';
     }
@@ -99,10 +191,17 @@ function turn_debug() {
 $(document).ready(function () {
   ut();
   $('#debug').click(turn_debug);
-  ft.findTurn(state.onTurn, state.move_map);
+  let bestTurn = ft.findTurn(state.onTurn, state.move_map);
   $('td').click(function () {
     state.handleTurn(this.id);
-    ft.findTurn(state.onTurn, state.move_map);
+    let bestTurn = ft.findTurn(state.onTurn, state.move_map);
+    if (state.gameType === 1) {
+      //one player gameType - computers turn
+      setTimeout(function() {
+        state.handleTurn(bestTurn[0]);
+        ft.findTurn(state.onTurn, state.move_map);
+      }, 1000);
+    }
   });
   $('span#2player').click(() => state.start2player());
   $('span#1playerx').click(() => state.start1playerx());
