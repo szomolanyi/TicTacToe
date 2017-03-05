@@ -40,17 +40,17 @@ let state={
   start2player: function() {
     this.reset(2, 'x');
     this.computerOnTurn = false;
-    this.setLabels("Player&nbsp;<i class='fa fa-close'></i>&nbsp;turn", "Player&nbsp;<i class='fa fa-circle-o'></i>&nbsp;turn");
+    this.setLabels();
   },
   start1playerx: function() {
     this.reset(1, 'x');
     this.computerOnTurn = false;
-    this.setLabels("Player x turn", "Player o turn");
+    this.setLabels();
   },
   start1playero: function() {
     this.reset(1, 'x');
     this.computerOnTurn = true;
-    this.setLabels("Player x turn", "Player o turn");
+    this.setLabels();
     let bestTurn = ft.findTurn(state.onTurn, state.move_map);
     //one player gameType - computers turn
     setTimeout(function() {
@@ -69,7 +69,7 @@ let state={
   You lost !
   You win !
   */
-  setLabels: function(l1, l2) {
+  setLabels: function() {
     let x="&nbsp;<i class='fa fa-close'></i>&nbsp;";
     let o="&nbsp;<i class='fa fa-circle-o'></i>&nbsp;";
     let who='';
@@ -172,10 +172,6 @@ let state={
   }
 
 };
-
-var f = param => console.log(param);
-
-f('es 6 working :)');
 
 function turn_debug() {
   if (state.debugOn) {
