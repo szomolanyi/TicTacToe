@@ -9,6 +9,9 @@ function unit_test() {
   test_analyse('analyse move 4 ... ', ft.analyseMove(1, ['x', undefined, 'x'], 'x'), {'trinities': 2, 'pairs': 0});
   test_analyse('analyse move 5 ... ', ft.analyseMove(4, [undefined, 'x', undefined, 'x'], 'x'), {'trinities': 0, 'pairs': 2});
   test_analyse('analyse move 6 ... ', ft.analyseMove(0, [undefined, undefined, 'x'], 'x'), {'trinities': 0, 'pairs': 1});
+  test_analyse('analyse move 7 ... ', ft.analyseMove(7, ['x', 'o', undefined, undefined, 'o', undefined, undefined, undefined, 'x'], 'x'), {'trinities': 0, 'pairs': 1});
+  test_analyse('analyse move 7 ... ', ft.analyseMove(7, ['x', 'o', undefined, undefined, 'o', undefined, undefined, undefined, 'x'], 'x'), {'trinities': 0, 'pairs': 1});
+  test_rank('compareRanks 1 ... ', ft.compareRanks([0,1,2,9],[0,1,7]), 1);
   /*test_cmp('find_trinity 3 ... ', ft.find_trinity([0,1], []), [2]);
 
   test_cmp('find pairs 3 ... ', ft.find_pairs_for_position(ft.Position(4), [undefined,'x',undefined,'x'], 'x'),[[1,4],[3,4]]);
@@ -64,6 +67,15 @@ function unit_test() {
     []);
   test_cmp('find pairs 8 ... ', ft.find_pairs_for_position(ft.Position(7), ['o', undefined, undefined, 'o', 'x', undefined, undefined, undefined, undefined], 'x'),
     [[4,7]]);*/
+}
+
+function test_rank(text, res, expected) {
+  if (res ===  expected) {
+    console.log(text, true);
+  }
+  else {
+    console.log(text, false);
+  }
 }
 
 function test_analyse(text, res, expected) {

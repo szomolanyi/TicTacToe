@@ -116,6 +116,7 @@ let state={
     this.lockUI = false;
     this.turnsDone = 0;
     this.switchL1();
+    ft.findTurn(state.onTurn, state.move_map);
   },
   createMove: function(kind) {
     if (kind === "x")
@@ -188,7 +189,6 @@ function turn_debug() {
 $(document).ready(function () {
   ut();
   $('#debug').click(turn_debug);
-  let bestTurn = ft.findTurn(state.onTurn, state.move_map);
   $('td').click(function () {
     if (state.gameOver || state.lockUI) return;
     state.lockUI = true;

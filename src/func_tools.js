@@ -55,6 +55,21 @@ const ft = {
     if (pos === 6) return 2;
     if (pos === 8) return 0;
   },
+  compareRanks(rank1, rank2) {
+    let rs1 = rank1.sort();
+    let rs2 = rank2.sort();
+    let i1 = rs1.length-1;
+    let i2 = rs2.length-1;
+    while (i1 >= 0 && i2 >=0) {
+      if (rs1[i1] > rs2[i2]) return 1;
+      if (rs1[i1] < rs2[i2]) return 2;
+      i1-=1;
+      i2-=1;
+    }
+    if (i1 === i2) return 0;
+    if (i1 > i2) return 1;
+    else return 2;
+  },
   findTurn: function(player, move_map, level) {
     if (!level) level=0;
     console.log('findTurn['+level+'] start onTurn='+player );
@@ -71,34 +86,51 @@ const ft = {
       9 : Block: If the opponent has two in a row, the player must play the third themselves to block the opponent.
       10 : Win: If the player has two in a row, they can place a third to get three in a row.
     */
-    let rank = -1;
     let optimal_move = -1;
+    let best_ranks=[];
     for (let i=0; i<9; i++) {
       if (!move_map[i]) {
-        let my_moves = ft.analyseMove(i, move_map, player );
-        if (my_moves.trinities > 0 && level === 0) {
-          //10 : Win: If the player has two in a row, they can place a third to get three in a row.
-          optimal_move = i;
-          rank = 10;
-          break;
+        let ranks = [];
+        ranks.push(0);
+        if (ft.is_middle_side) {
+          //1 : Empty side: The player plays in a middle square on any of the 4 sides.
+          //optimal_move = i;
+          ranks.push(1);
+        }
+        if (ft.is_corner(i)) {
+          //Empty corner: The player plays in a corner square.
+          //optimal_move = i;
+          ranks.push(2);
+        }
+        if (ft.is_corner(i) &&
+          move_map[ft.opposite_corner(i)] === ft.opponent(player)) {
+          //3 : Opposite corner: If the opponent is in the corner,
+          //the player plays the opposite corner.
+          //optimal_move = i;
+          ranks.push(3);
+        }
+        if (i===4) {
+          //Center: A player marks the center. (If it is the first move of the game,
+          //playing on a corner gives "O" more opportunities to make a mistake
+          //and may therefore be the better choice;
+          //however, it makes no difference between perfect players.)
+          //optimal_move = i;
+          ranks.push(4);
         }
         let opponent_moves = ft.analyseMove(i, move_map, ft.opponent(player));
-        if (opponent_moves.trinities > 0 && rank < 9 && level === 0) {
-          //9 : Block: If the opponent has two in a row, the player must play the third themselves to block the opponent.
-          optimal_move = i;
-          rank = 9;
+        if (opponent_moves.pairs > 1) {
+          //5 : Blocking, Option 2: If there is a configuration where the opponent can fork,
+          //the player should block that fork.
+          //optimal_move = i;
+          ranks.push(5);
         }
-        if (my_moves.pairs > 1 && rank < 8) {
-          //8 : Fork: Create an opportunity where the player has two threats to win (two non-blocked lines of 2).
-          optimal_move = i;
-          rank = 8;
-        }
-        if (opponent_moves.pairs > 1 && rank < 6) {
+        let my_moves = ft.analyseMove(i, move_map, player );
+        if (opponent_moves.pairs > 1) {
           //7 : Blocking an opponent's fork
-          optimal_move = i;
-          rank = 6;
+          //optimal_move = i;
+          ranks.push(6);
         }
-        if (my_moves.pairs > 0 && rank < 7) {
+        if (my_moves.pairs > 0) {
           //6 : Blocking, Option 1: The player should create two in a row to force the opponent into defending,
           //as long as it doesn't result in them creating a fork. For example, if "X" has a corner,
           //"O" has the center, and "X" has the opposite corner as well,
@@ -108,55 +140,40 @@ const ft = {
           if (level === 0) {
             let tmp_map = move_map.slice();
             tmp_map[i] = player; //simulate turn
-            console.log('  checking rank 6 for '+i);
             tmp_res = ft.findTurn(ft.opponent(player), tmp_map, 1);
+            let ranks_temp = tmp_res[1];
+            if (ranks_temp.indexOf(8) === -1) {
+            //optimal_move = i;
+              ranks.push(7);
+            }
           }
-          else tmp_res=[0, 0]; /* dummy */
-          if (tmp_res[1] !== 8) {
-            optimal_move = i;
-            rank = 7;
-          }
         }
-        if (opponent_moves.pairs > 1 && rank < 5) {
-          //5 : Blocking, Option 2: If there is a configuration where the opponent can fork,
-          //the player should block that fork.
-          optimal_move = i;
-          rank = 5;
+        if (my_moves.pairs > 1) {
+          //8 : Fork: Create an opportunity where the player has two threats to win (two non-blocked lines of 2).
+          //optimal_move = i;
+          ranks.push(8);
         }
-        if (i===4 && rank < 4) {
-          //Center: A player marks the center. (If it is the first move of the game,
-          //playing on a corner gives "O" more opportunities to make a mistake
-          //and may therefore be the better choice;
-          //however, it makes no difference between perfect players.)
-          optimal_move = i;
-          rank = 4;
+        if (opponent_moves.trinities > 0) {
+          //9 : Block: If the opponent has two in a row, the player must play the third themselves to block the opponent.
+          //optimal_move = i;
+          ranks.push(9);
         }
-        if (ft.is_corner(i) &&
-          move_map[ft.opposite_corner(i)] === ft.opponent(player) &&
-          rank < 3) {
-          //3 : Opposite corner: If the opponent is in the corner,
-          //the player plays the opposite corner.
-          optimal_move = i;
-          rank = 3;
+        if (my_moves.trinities > 0) {
+          //10 : Win: If the player has two in a row, they can place a third to get three in a row.
+          //optimal_move = i;
+          ranks.push(10);
         }
-        if (ft.is_corner(i) && rank < 2) {
-          //Empty corner: The player plays in a corner square.
-          optimal_move = i;
-          rank = 2;
+        if (ft.compareRanks(best_ranks, ranks) === 2) {
+          optimal_move=i;
+          best_ranks = ranks.slice(0);
         }
-        if (ft.is_middle_side && rank < 1) {
-          //1 : Empty side: The player plays in a middle square on any of the 4 sides.
-          optimal_move = i;
-          rank = 1;
-        }
-        if (rank < 0) {
-          optimal_move = i;
-          rank = 0;
-        }
+        console.log(' turn '+i+' level='+level+' ('+player+') best_move:'+optimal_move);
+        console.log(ranks);
       }
     }
-    console.log('findTurn level='+level+' ('+player+') best_move:'+optimal_move+' rank:'+rank);
-    return [optimal_move, rank];
+    console.log('findTurn level='+level+' ('+player+') best_move:'+optimal_move);
+    console.log(best_ranks);
+    return [optimal_move, best_ranks];
   },
   player_pos: function(pos, move_map, player) {
     return pos && move_map[pos.index] === player;
