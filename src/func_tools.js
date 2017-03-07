@@ -56,8 +56,8 @@ const ft = {
     if (pos === 8) return 0;
   },
   compareRanks(rank1, rank2) {
-    let rs1 = rank1.sort();
-    let rs2 = rank2.sort();
+    let rs1 = rank1.sort((a,b)=>a-b);
+    let rs2 = rank2.sort((a,b)=>a-b);
     let i1 = rs1.length-1;
     let i2 = rs2.length-1;
     while (i1 >= 0 && i2 >=0) {
@@ -72,7 +72,6 @@ const ft = {
   },
   findTurn: function(player, move_map, level) {
     if (!level) level=0;
-    console.log('findTurn['+level+'] start onTurn='+player );
     /* turn_rank :
       0 : random
       1 : Empty side: The player plays in a middle square on any of the 4 sides.
@@ -90,6 +89,7 @@ const ft = {
     let best_ranks=[];
     for (let i=0; i<9; i++) {
       if (!move_map[i]) {
+        console.log(`checkTurn[${level},${player},${i}]`);
         let ranks = [];
         ranks.push(0);
         if (ft.is_middle_side) {
@@ -167,12 +167,10 @@ const ft = {
           optimal_move=i;
           best_ranks = ranks.slice(0);
         }
-        console.log(' turn '+i+' level='+level+' ('+player+') best_move:'+optimal_move);
-        console.log(ranks);
+        console.log(`checkTurn end [${level},${player},${i}]=${optimal_move} ranks=${ranks} best_ranks=${best_ranks}`);
       }
     }
-    console.log('findTurn level='+level+' ('+player+') best_move:'+optimal_move);
-    console.log(best_ranks);
+    console.log(`findTurn end [${level},${player}]=${optimal_move} best_ranks=${best_ranks}`);
     return [optimal_move, best_ranks];
   },
   player_pos: function(pos, move_map, player) {

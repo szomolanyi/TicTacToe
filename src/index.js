@@ -38,6 +38,9 @@ let state={
       'win' : undefined
     }
   },
+  checkTurn: function(id) {
+    return !this.gameOver && !this.lockUI && !this.move_map[id];
+  },
   start2player: function() {
     this.reset(2, 'x');
     this.computerOnTurn = false;
@@ -51,12 +54,14 @@ let state={
   start1playero: function() {
     this.reset(1, 'x');
     this.computerOnTurn = true;
+    this.lockUI = true;
     this.setLabels();
     let bestTurn = ft.findTurn(state.onTurn, state.move_map);
     //one player gameType - computers turn
     setTimeout(function() {
       state.handleTurn(bestTurn[0]);
       ft.findTurn(state.onTurn, state.move_map);
+      state.lockUI=false;
     }, 1000);
   },
   /*
@@ -190,7 +195,7 @@ $(document).ready(function () {
   ut();
   $('#debug').click(turn_debug);
   $('td').click(function () {
-    if (state.gameOver || state.lockUI) return;
+    if (!state.checkTurn(this.id)) return;
     state.lockUI = true;
     state.handleTurn(this.id);
     let bestTurn = ft.findTurn(state.onTurn, state.move_map);
