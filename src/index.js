@@ -21,8 +21,6 @@ let state={
     'x' : [],
     'o' : []
   },
-  x_positions: [],
-  o_positions: [],
   gameType : 1,
   gameOver : true,
   lockUI : false,
@@ -64,17 +62,6 @@ let state={
       state.lockUI=false;
     }, 1000);
   },
-  /*
-  Player x turn !
-  Player o turn !
-  Computer turn !
-  Your turn !
-
-  Player x wins !
-  Player o wins !
-  You lost !
-  You win !
-  */
   setLabels: function() {
     let x="&nbsp;<i class='fa fa-close'></i>&nbsp;";
     let o="&nbsp;<i class='fa fa-circle-o'></i>&nbsp;";
@@ -166,16 +153,12 @@ let state={
     $('#'+id).append(this.createMove(this.onTurn));
     if (this.onTurn === 'o') {
       this.switchL1();
-      this.o_positions.push(id);
       this.onTurn='x';
     }
     else {
       this.switchL2();
-      this.x_positions.push(id);
       this.onTurn='o';
     }
-
-    dbg(`Turn on ${x}, ${y} id=${id} nextTurn=${this.onTurn} ${this.move_map} ${this.x_positions.toString()} ${this.o_positions.toString()}`);
   }
 
 };
@@ -193,7 +176,6 @@ function turn_debug() {
 
 $(document).ready(function () {
   ut();
-  $('#debug').click(turn_debug);
   $('td').click(function () {
     if (!state.checkTurn(this.id)) return;
     state.lockUI = true;
