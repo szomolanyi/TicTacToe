@@ -126,3 +126,10 @@ td {
 #debug > p:nth-child(even) {
   background-color: rgba(193, 145, 144, 0.7);
 }
+div.footer {
+    position: fixed;
+    bottom: 0px;
+    right: 5px;
+    opacity: 0.8;
+    color: #795548;
+}
