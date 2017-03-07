@@ -68,8 +68,6 @@
 	    'x': [],
 	    'o': []
 	  },
-	  x_positions: [],
-	  o_positions: [],
 	  gameType: 1,
 	  gameOver: true,
 	  lockUI: false,
@@ -85,6 +83,9 @@
 	      'win': undefined
 	    }
 	  },
+	  checkTurn: function checkTurn(id) {
+	    return !this.gameOver && !this.lockUI && !this.move_map[id];
+	  },
 	  start2player: function start2player() {
 	    this.reset(2, 'x');
 	    this.computerOnTurn = false;
@@ -98,24 +99,16 @@
 	  start1playero: function start1playero() {
 	    this.reset(1, 'x');
 	    this.computerOnTurn = true;
+	    this.lockUI = true;
 	    this.setLabels();
 	    var bestTurn = ft.findTurn(state.onTurn, state.move_map);
 	    //one player gameType - computers turn
 	    setTimeout(function () {
 	      state.handleTurn(bestTurn[0]);
 	      ft.findTurn(state.onTurn, state.move_map);
+	      state.lockUI = false;
 	    }, 1000);
 	  },
-	  /*
-	  Player x turn !
-	  Player o turn !
-	  Computer turn !
-	  Your turn !
-	   Player x wins !
-	  Player o wins !
-	  You lost !
-	  You win !
-	  */
 	  setLabels: function setLabels() {
 	    var x = "&nbsp;<i class='fa fa-close'></i>&nbsp;";
 	    var o = "&nbsp;<i class='fa fa-circle-o'></i>&nbsp;";
@@ -160,6 +153,7 @@
 	    this.lockUI = false;
 	    this.turnsDone = 0;
 	    this.switchL1();
+	    ft.findTurn(state.onTurn, state.move_map);
 	  },
 	  createMove: function createMove(kind) {
 	    if (kind === "x") return $('<i>').addClass("fa fa-close");else return $('<i>').addClass("fa fa-circle-o");
@@ -199,15 +193,11 @@
 	    $('#' + id).append(this.createMove(this.onTurn));
 	    if (this.onTurn === 'o') {
 	      this.switchL1();
-	      this.o_positions.push(id);
 	      this.onTurn = 'x';
 	    } else {
 	      this.switchL2();
-	      this.x_positions.push(id);
 	      this.onTurn = 'o';
 	    }
-	
-	    dbg("Turn on " + x + ", " + y + " id=" + id + " nextTurn=" + this.onTurn + " " + this.move_map + " " + this.x_positions.toString() + " " + this.o_positions.toString());
 	  }
 	
 	};
@@ -224,10 +214,8 @@
 	
 	$(document).ready(function () {
 	  ut();
-	  $('#debug').click(turn_debug);
-	  var bestTurn = ft.findTurn(state.onTurn, state.move_map);
 	  $('td').click(function () {
-	    if (state.gameOver || state.lockUI) return;
+	    if (!state.checkTurn(this.id)) return;
 	    state.lockUI = true;
 	    state.handleTurn(this.id);
 	    var bestTurn = ft.findTurn(state.onTurn, state.move_map);
@@ -10528,7 +10516,7 @@
 	
 	
 	// module
-	exports.push([module.id, "body, html {\n  height: 100%;\n  margin: 0;\n}\nbody {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  color: #FF9800;\n  font-family: \"Lucida Sans Unicode\", \"Lucida Grande\", sans-serif;\n}\nheader {\n  display: flex;\n  align-items:  stretch;\n  flex-direction: column;\n  flex: 0 0 auto;\n  width: 100%;\n  background-color: #795548;\n  color: white;\n  /*padding-left: 10px;*/\n}\nheader > span {\n  font-size: 2em;\n  padding-left: 10px;\n  padding-top: 10px;\n}\nnav {\n  padding-left: 10px;\n  padding-bottom: 10px;\n  display: flex;\n  justify-content: space-around;\n}\nnav > span {\n  font-size: 1em;\n  border-radius: 4px;\n  padding: 2px 10px;\n  transition: all 0.5s;\n  cursor: pointer;\n}\nnav > span:hover {\n  background-color: #A1887F;\n}\nhr {\n  border-color: white;\n  width: 100%;\n  border-right : 0;\n  border-left: 0;\n}\nmain {\n  flex: 1 0 auto;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n}\nmain > div {\n  width: 250px;\n  height: 2em;\n  border: 2px solid #795548;\n  margin-bottom: 20px;\n  border-radius: 10px;\n  overflow: hidden;\n  position: relative;\n}\nmain > div > div {\n  width: 250px;\n  height: 2em;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  position: absolute;\n}\ndiv#label1 {\n  top: 0px;\n  transition: top 0.5s;\n  transition-timing-function: ease-in-out;\n  font-size: 1.1em;\n  font-weight: bold;\n}\ndiv#label2 {\n  top: 250px;\n  transition: top 0.5s;\n  transition-timing-function: ease-in-out;\n  font-size: 1.1em;\n  font-weight: bold;\n}\na {\n  text-decoration: none;\n  color: white;\n}\ntable {\n  border: 1px solid #795548;\n  border-spacing: 0px;\n  border-color: #795548;\n}\ntd {\n  border: 1px solid #795548;\n  height: 80px;\n  width: 80px;\n  text-align: center;\n  font-size: 3em;\n  font-weight: 100;\n}\n#debug {\n  position: fixed;\n  bottom: 0px;\n  right: 0px;\n  margin-left: 10px;\n  width: 45px;\n  height: 18px;\n  border: 3px solid rgba(131, 45, 43, 0.7);\n  transition: all 1s;\n  /*, max-width 2s, height 2s;*/\n}\n#debug.pop {\n  width: 400px;\n  height: auto;\n}\n#debug > p {\n  color: rgba(0, 0, 0, 0.7);\n  margin: 0;\n}\n#debug > p:nth-child(odd) {\n  background-color: rgba(135, 78, 77, 0.7);\n}\n#debug > p:nth-child(even) {\n  background-color: rgba(193, 145, 144, 0.7);\n}\n", ""]);
+	exports.push([module.id, "body, html {\n  height: 100%;\n  margin: 0;\n}\nbody {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  color: #FF9800;\n  font-family: \"Lucida Sans Unicode\", \"Lucida Grande\", sans-serif;\n}\nheader {\n  display: flex;\n  align-items:  stretch;\n  flex-direction: column;\n  flex: 0 0 auto;\n  width: 100%;\n  background-color: #795548;\n  color: white;\n  /*padding-left: 10px;*/\n}\nheader > span {\n  font-size: 2em;\n  padding-left: 10px;\n  padding-top: 10px;\n}\nnav {\n  padding-left: 10px;\n  padding-bottom: 10px;\n  display: flex;\n  justify-content: space-around;\n}\nnav > span {\n  font-size: 1em;\n  border-radius: 4px;\n  padding: 2px 10px;\n  transition: all 0.5s;\n  cursor: pointer;\n}\nnav > span:hover {\n  background-color: #A1887F;\n}\nhr {\n  border-color: white;\n  width: 100%;\n  border-right : 0;\n  border-left: 0;\n}\nmain {\n  flex: 1 0 auto;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n}\nmain > div {\n  width: 250px;\n  height: 2em;\n  border: 2px solid #795548;\n  margin-bottom: 20px;\n  border-radius: 10px;\n  overflow: hidden;\n  position: relative;\n}\nmain > div > div {\n  width: 250px;\n  height: 2em;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  position: absolute;\n}\ndiv#label1 {\n  top: 0px;\n  transition: top 0.5s;\n  transition-timing-function: ease-in-out;\n  font-size: 1.1em;\n  font-weight: bold;\n}\ndiv#label2 {\n  top: 250px;\n  transition: top 0.5s;\n  transition-timing-function: ease-in-out;\n  font-size: 1.1em;\n  font-weight: bold;\n}\na {\n  text-decoration: none;\n  color: white;\n}\ntable {\n  border: 1px solid #795548;\n  border-spacing: 0px;\n  border-color: #795548;\n}\ntd {\n  border: 1px solid #795548;\n  height: 80px;\n  width: 80px;\n  text-align: center;\n  font-size: 3em;\n  font-weight: 100;\n}\n#debug {\n  position: fixed;\n  bottom: 0px;\n  right: 0px;\n  margin-left: 10px;\n  width: 45px;\n  height: 18px;\n  border: 3px solid rgba(131, 45, 43, 0.7);\n  transition: all 1s;\n  /*, max-width 2s, height 2s;*/\n}\n#debug.pop {\n  width: 400px;\n  height: auto;\n}\n#debug > p {\n  color: rgba(0, 0, 0, 0.7);\n  margin: 0;\n}\n#debug > p:nth-child(odd) {\n  background-color: rgba(135, 78, 77, 0.7);\n}\n#debug > p:nth-child(even) {\n  background-color: rgba(193, 145, 144, 0.7);\n}\ndiv.footer {\n    position: fixed;\n    bottom: 0px;\n    right: 5px;\n    opacity: 0.8;\n    color: #795548;\n}\n", ""]);
 	
 	// exports
 
@@ -11222,6 +11210,9 @@
 	  test_analyse('analyse move 4 ... ', ft.analyseMove(1, ['x', undefined, 'x'], 'x'), { 'trinities': 2, 'pairs': 0 });
 	  test_analyse('analyse move 5 ... ', ft.analyseMove(4, [undefined, 'x', undefined, 'x'], 'x'), { 'trinities': 0, 'pairs': 2 });
 	  test_analyse('analyse move 6 ... ', ft.analyseMove(0, [undefined, undefined, 'x'], 'x'), { 'trinities': 0, 'pairs': 1 });
+	  test_analyse('analyse move 7 ... ', ft.analyseMove(7, ['x', 'o', undefined, undefined, 'o', undefined, undefined, undefined, 'x'], 'x'), { 'trinities': 0, 'pairs': 1 });
+	  test_analyse('analyse move 7 ... ', ft.analyseMove(7, ['x', 'o', undefined, undefined, 'o', undefined, undefined, undefined, 'x'], 'x'), { 'trinities': 0, 'pairs': 1 });
+	  test_rank('compareRanks 1 ... ', ft.compareRanks([0, 1, 2, 9], [0, 1, 7]), 1);
 	  /*test_cmp('find_trinity 3 ... ', ft.find_trinity([0,1], []), [2]);
 	   test_cmp('find pairs 3 ... ', ft.find_pairs_for_position(ft.Position(4), [undefined,'x',undefined,'x'], 'x'),[[1,4],[3,4]]);
 	   test_cmp('find pairs 9 ... ', ft.find_pairs_for_position(ft.Position(1), ['x', undefined, undefined, undefined, 'o', undefined, undefined, 'o', undefined], 'x'),
@@ -11274,6 +11265,14 @@
 	    []);
 	  test_cmp('find pairs 8 ... ', ft.find_pairs_for_position(ft.Position(7), ['o', undefined, undefined, 'o', 'x', undefined, undefined, undefined, undefined], 'x'),
 	    [[4,7]]);*/
+	}
+	
+	function test_rank(text, res, expected) {
+	  if (res === expected) {
+	    console.log(text, true);
+	  } else {
+	    console.log(text, false);
+	  }
 	}
 	
 	function test_analyse(text, res, expected) {
@@ -11356,9 +11355,27 @@
 	    if (pos === 6) return 2;
 	    if (pos === 8) return 0;
 	  },
+	  compareRanks: function compareRanks(rank1, rank2) {
+	    var rs1 = rank1.sort(function (a, b) {
+	      return a - b;
+	    });
+	    var rs2 = rank2.sort(function (a, b) {
+	      return a - b;
+	    });
+	    var i1 = rs1.length - 1;
+	    var i2 = rs2.length - 1;
+	    while (i1 >= 0 && i2 >= 0) {
+	      if (rs1[i1] > rs2[i2]) return 1;
+	      if (rs1[i1] < rs2[i2]) return 2;
+	      i1 -= 1;
+	      i2 -= 1;
+	    }
+	    if (i1 === i2) return 0;
+	    if (i1 > i2) return 1;else return 2;
+	  },
+	
 	  findTurn: function findTurn(player, move_map, level) {
 	    if (!level) level = 0;
-	    console.log('findTurn[' + level + '] start onTurn=' + player);
 	    /* turn_rank :
 	      0 : random
 	      1 : Empty side: The player plays in a middle square on any of the 4 sides.
@@ -11372,34 +11389,51 @@
 	      9 : Block: If the opponent has two in a row, the player must play the third themselves to block the opponent.
 	      10 : Win: If the player has two in a row, they can place a third to get three in a row.
 	    */
-	    var rank = -1;
 	    var optimal_move = -1;
+	    var best_ranks = [];
 	    for (var i = 0; i < 9; i++) {
 	      if (!move_map[i]) {
-	        var my_moves = ft.analyseMove(i, move_map, player);
-	        if (my_moves.trinities > 0 && level === 0) {
-	          //10 : Win: If the player has two in a row, they can place a third to get three in a row.
-	          optimal_move = i;
-	          rank = 10;
-	          break;
+	        console.log('checkTurn[' + level + ',' + player + ',' + i + ']');
+	        var ranks = [];
+	        ranks.push(0);
+	        if (ft.is_middle_side) {
+	          //1 : Empty side: The player plays in a middle square on any of the 4 sides.
+	          //optimal_move = i;
+	          ranks.push(1);
+	        }
+	        if (ft.is_corner(i)) {
+	          //Empty corner: The player plays in a corner square.
+	          //optimal_move = i;
+	          ranks.push(2);
+	        }
+	        if (ft.is_corner(i) && move_map[ft.opposite_corner(i)] === ft.opponent(player)) {
+	          //3 : Opposite corner: If the opponent is in the corner,
+	          //the player plays the opposite corner.
+	          //optimal_move = i;
+	          ranks.push(3);
+	        }
+	        if (i === 4) {
+	          //Center: A player marks the center. (If it is the first move of the game,
+	          //playing on a corner gives "O" more opportunities to make a mistake
+	          //and may therefore be the better choice;
+	          //however, it makes no difference between perfect players.)
+	          //optimal_move = i;
+	          ranks.push(4);
 	        }
 	        var opponent_moves = ft.analyseMove(i, move_map, ft.opponent(player));
-	        if (opponent_moves.trinities > 0 && rank < 9 && level === 0) {
-	          //9 : Block: If the opponent has two in a row, the player must play the third themselves to block the opponent.
-	          optimal_move = i;
-	          rank = 9;
+	        if (opponent_moves.pairs > 1) {
+	          //5 : Blocking, Option 2: If there is a configuration where the opponent can fork,
+	          //the player should block that fork.
+	          //optimal_move = i;
+	          ranks.push(5);
 	        }
-	        if (my_moves.pairs > 1 && rank < 8) {
-	          //8 : Fork: Create an opportunity where the player has two threats to win (two non-blocked lines of 2).
-	          optimal_move = i;
-	          rank = 8;
-	        }
-	        if (opponent_moves.pairs > 1 && rank < 6) {
+	        var my_moves = ft.analyseMove(i, move_map, player);
+	        if (opponent_moves.pairs > 1) {
 	          //7 : Blocking an opponent's fork
-	          optimal_move = i;
-	          rank = 6;
+	          //optimal_move = i;
+	          ranks.push(6);
 	        }
-	        if (my_moves.pairs > 0 && rank < 7) {
+	        if (my_moves.pairs > 0) {
 	          //6 : Blocking, Option 1: The player should create two in a row to force the opponent into defending,
 	          //as long as it doesn't result in them creating a fork. For example, if "X" has a corner,
 	          //"O" has the center, and "X" has the opposite corner as well,
@@ -11409,52 +11443,38 @@
 	          if (level === 0) {
 	            var tmp_map = move_map.slice();
 	            tmp_map[i] = player; //simulate turn
-	            console.log('  checking rank 6 for ' + i);
 	            tmp_res = ft.findTurn(ft.opponent(player), tmp_map, 1);
-	          } else tmp_res = [0, 0]; /* dummy */
-	          if (tmp_res[1] !== 8) {
-	            optimal_move = i;
-	            rank = 7;
+	            var ranks_temp = tmp_res[1];
+	            if (ranks_temp.indexOf(8) === -1) {
+	              //optimal_move = i;
+	              ranks.push(7);
+	            }
 	          }
 	        }
-	        if (opponent_moves.pairs > 1 && rank < 5) {
-	          //5 : Blocking, Option 2: If there is a configuration where the opponent can fork,
-	          //the player should block that fork.
-	          optimal_move = i;
-	          rank = 5;
+	        if (my_moves.pairs > 1) {
+	          //8 : Fork: Create an opportunity where the player has two threats to win (two non-blocked lines of 2).
+	          //optimal_move = i;
+	          ranks.push(8);
 	        }
-	        if (i === 4 && rank < 4) {
-	          //Center: A player marks the center. (If it is the first move of the game,
-	          //playing on a corner gives "O" more opportunities to make a mistake
-	          //and may therefore be the better choice;
-	          //however, it makes no difference between perfect players.)
-	          optimal_move = i;
-	          rank = 4;
+	        if (opponent_moves.trinities > 0) {
+	          //9 : Block: If the opponent has two in a row, the player must play the third themselves to block the opponent.
+	          //optimal_move = i;
+	          ranks.push(9);
 	        }
-	        if (ft.is_corner(i) && move_map[ft.opposite_corner(i)] === ft.opponent(player) && rank < 3) {
-	          //3 : Opposite corner: If the opponent is in the corner,
-	          //the player plays the opposite corner.
-	          optimal_move = i;
-	          rank = 3;
+	        if (my_moves.trinities > 0) {
+	          //10 : Win: If the player has two in a row, they can place a third to get three in a row.
+	          //optimal_move = i;
+	          ranks.push(10);
 	        }
-	        if (ft.is_corner(i) && rank < 2) {
-	          //Empty corner: The player plays in a corner square.
+	        if (ft.compareRanks(best_ranks, ranks) === 2) {
 	          optimal_move = i;
-	          rank = 2;
+	          best_ranks = ranks.slice(0);
 	        }
-	        if (ft.is_middle_side && rank < 1) {
-	          //1 : Empty side: The player plays in a middle square on any of the 4 sides.
-	          optimal_move = i;
-	          rank = 1;
-	        }
-	        if (rank < 0) {
-	          optimal_move = i;
-	          rank = 0;
-	        }
+	        console.log('checkTurn end [' + level + ',' + player + ',' + i + ']=' + optimal_move + ' ranks=' + ranks + ' best_ranks=' + best_ranks);
 	      }
 	    }
-	    console.log('findTurn level=' + level + ' (' + player + ') best_move:' + optimal_move + ' rank:' + rank);
-	    return [optimal_move, rank];
+	    console.log('findTurn end [' + level + ',' + player + ']=' + optimal_move + ' best_ranks=' + best_ranks);
+	    return [optimal_move, best_ranks];
 	  },
 	  player_pos: function player_pos(pos, move_map, player) {
 	    return pos && move_map[pos.index] === player;
