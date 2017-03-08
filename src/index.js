@@ -117,7 +117,7 @@ let state={
       return $('<i>').addClass("fa fa-circle-o");
   },
   handleWin: function() {
-    console.log('Game over: '+this.onTurn + ' wins');
+    //console.log('Game over: '+this.onTurn + ' wins');
     this.gameOver = true;
     if (this.onTurn === 'x') {
       $('div#label2').html(this.labels.x.win);
@@ -127,7 +127,7 @@ let state={
     }
   },
   handleTie: function() {
-    console.log('Game over : tie');
+    //console.log('Game over : tie');
     this.gameOver = true;
     if (this.onTurn === 'x') {
       $('div#label2').html('Game tied');
@@ -175,7 +175,7 @@ function turn_debug() {
 }
 
 $(document).ready(function () {
-  ut();
+  //ut();
   $('td').click(function () {
     if (!state.checkTurn(this.id)) return;
     state.lockUI = true;

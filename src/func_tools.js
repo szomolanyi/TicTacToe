@@ -89,7 +89,7 @@ const ft = {
     let best_ranks=[];
     for (let i=0; i<9; i++) {
       if (!move_map[i]) {
-        console.log(`checkTurn[${level},${player},${i}]`);
+        //console.log(`checkTurn[${level},${player},${i}]`);
         let ranks = [];
         ranks.push(0);
         if (ft.is_middle_side) {
@@ -167,10 +167,10 @@ const ft = {
           optimal_move=i;
           best_ranks = ranks.slice(0);
         }
-        console.log(`checkTurn end [${level},${player},${i}]=${optimal_move} ranks=${ranks} best_ranks=${best_ranks}`);
+        //console.log(`checkTurn end [${level},${player},${i}]=${optimal_move} ranks=${ranks} best_ranks=${best_ranks}`);
       }
     }
-    console.log(`findTurn end [${level},${player}]=${optimal_move} best_ranks=${best_ranks}`);
+    //console.log(`findTurn end [${level},${player}]=${optimal_move} best_ranks=${best_ranks}`);
     return [optimal_move, best_ranks];
   },
   player_pos: function(pos, move_map, player) {
